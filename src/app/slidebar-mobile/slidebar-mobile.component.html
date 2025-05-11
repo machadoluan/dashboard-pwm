@@ -1,0 +1,12 @@
+<div class="container-slide" >
+    <div class="links">
+        <div class="link"  [ngClass]="{'active': isActive('/')}" routerLink="/">
+            <i class="fa-solid fa-bell"></i>
+            Alertas
+        </div>
+        <div class="link" routerLink="/tags" [ngClass]="{'active': isActive('/tags')}"  >
+            <i class="fa-solid fa-tag"></i>
+            Tags
+        </div>
+    </div>
+</div>

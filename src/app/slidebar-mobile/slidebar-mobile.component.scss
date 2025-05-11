@@ -1,0 +1,54 @@
+$sidebar-bg: #2f3d4a;
+$topbar-bg: #344156;
+$content-bg: #f4f7fa;
+$card-bg: #ffffff;
+$text-main: #2c3e50;
+$text-light: #7f8c8d;
+$border-light: #eceef1;
+
+
+.container-slide {
+     position: fixed;
+     bottom: 0;
+     left: 0;
+     width: 100%;
+     z-index: 99;
+     transition: all 0.5s;
+     padding: 1rem 0;
+     background-color: $topbar-bg;
+     display: none;
+
+
+     .links {
+         display: flex;
+         align-items: center;
+         justify-content: space-around;
+
+         .link {
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             font-size: 14px;
+
+             &.active {
+                 color: var(--primary);
+
+                 i {
+                     color: var(--primary);
+
+                 }
+             }
+
+             i {
+                 font-size: 20px;
+                 color: var(--icon-color);
+             }
+         }
+     }
+ }
+
+ @media screen and (max-width: 750px) {
+     .container-slide {
+         display: block;
+     }
+ }

@@ -6,46 +6,18 @@
   <div class="main">
     <!-- header -->
     <header class="topbar">
-      <h1>Alertas</h1>
-
+      <h1>Tags</h1>
     </header>
 
     <!-- conteúdo -->
     <div class="content">
-      <!-- coluna de alertas -->
-      <section class="alerts">
-        <div class="alert-card" *ngFor="let a of alerts">
-          <div class="card-header">
-            <span>⚠️ Alerta de No-break</span>
-            <small>{{ a.time }}</small>
-          </div>
-          <hr>
-          <ul class="card-body">
-            <li><strong>Aviso:</strong> {{ a.aviso }}</li>
-            <li><strong>Data/Hora:</strong> {{ a.dataHora }}</li>
-            <li><strong>IP:</strong> {{ a.ip }}</li>
-            <li><strong>Nome do Sistema:</strong> {{ a.nomeSistema }}</li>
-            <li><strong>Contato:</strong> {{ a.contato }}</li>
-            <li><strong>Localidade:</strong> {{ a.localidade }}</li>
-            <li><strong>Status:</strong> {{ a.status }}</li>
-
-
-          </ul>
-          <p-panel header="📨 Ver corpo do e-mail" toggleable="true" collapsed="true" collapsedIcon="pi pi-chevron-down"
-            expandedIcon="pi pi-chevron-up" styleClass="raw-message-panel">
-            <div style="white-space: pre-wrap;">
-              {{ a.mensagemOriginal || 'Corpo original indisponível.' }}
-            </div>
-          </p-panel>
-
-        </div>
-      </section>
+ 
 
       <!-- sidebar direita com widgets -->
       <aside class="widgets">
         <!-- Keywords -->
         <div class="widget keywords">
-          <h3>Tags</h3>
+          <h3>Informações</h3>
           <div class="tags">
             <span class="tag" *ngFor="let kw of keywords">
               {{ kw }}

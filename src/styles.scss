@@ -1,9 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+$sidebar-bg: #2f3d4a;
+$topbar-bg: #344156;
+$content-bg: #f4f7fa;
+$card-bg: #ffffff;
+$text-main: #2c3e50;
+$text-light: #7f8c8d;
+$border-light: #eceef1;
+
+
+
+// reset básico
 * {
-    padding: 0;
     margin: 0;
+    padding: 0;
     box-sizing: border-box;
+    font-family: Arial, sans-serif;
+
 }
 
-body {
+
+// layout geral
+.layout {
+    display: flex;
+    height: 100vh;
+    color: $text-main;
 }

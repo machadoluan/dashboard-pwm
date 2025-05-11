@@ -7,6 +7,12 @@ $text-main: #2c3e50;
 $text-light: #7f8c8d;
 $border-light: #eceef1;
 
+// reset básico
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 ul {
   list-style: none;
@@ -27,6 +33,7 @@ ul {
   color: white;
   display: flex;
   flex-direction: column;
+  
 
   .logo {
     padding: 1.5rem;
@@ -60,6 +67,8 @@ ul {
   height: 60px;
   background: $topbar-bg;
   color: white;
+  z-index: 899999;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,7 +76,6 @@ ul {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 899999;
 
   h1 {
     font-size: 1.25rem;
@@ -102,7 +110,7 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  margin-top: 75px;
+  margin: 75px 0;
 
   height: calc(100vh - 80px);
   overflow-y: scroll;
@@ -242,7 +250,7 @@ ul {
 
       button {
         height: 100%;
-        padding: 0 .5rem;
+        padding:  .5rem;
         border-radius: .3rem;
         background-color: $sidebar-bg;
         color: white;
@@ -292,7 +300,7 @@ ul {
 
 
 
-@media (max-width: 750px) {
+@media (max-width: 768px) {
   .layout {
     flex-direction: column;
   }
@@ -300,20 +308,23 @@ ul {
   .content {
     flex-direction: column;
     padding: 0.75rem;
-    
+
     margin-top: 50px;
   }
-  
+
   .alerts {
     height: auto;
-    margin: 75px 0;
     margin-top: 1rem;
     flex: 1;
   }
 
   .widgets {
-    display: none;
+    width: 100%;
+    margin-top: 1rem;
 
+    .widget {
+      width: 100%;
+    }
   }
 
   .keywords .form-group {
