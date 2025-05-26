@@ -1,10 +1,12 @@
-$sidebar-bg: #2f3d4a;
-$topbar-bg: #344156;
-$content-bg: #f4f7fa;
-$card-bg: #ffffff;
-$text-main: #2c3e50;
-$text-light: #7f8c8d;
-$border-light: #eceef1;
+:root {
+  --sidebar-bg: #2f3d4a;
+  --topbar-bg: #344156;
+  --content-bg: #f4f7fa;
+  --card-bg: #ffffff;
+  --text-main: #2c3e50;
+  --text-light: #7f8c8d;
+  --border-light: #eceef1;
+}
 
 
 
@@ -22,5 +24,9 @@ $border-light: #eceef1;
 .layout {
     display: flex;
     height: 100vh;
-    color: $text-main;
+}
+
+body{
+    color: var(--text-main);
+    background-color: white;
 }

@@ -1,336 +1,480 @@
-// variáveis de cores
-$sidebar-bg: #2f3d4a;
-$topbar-bg: #344156;
-$content-bg: #f4f7fa;
-$card-bg: #ffffff;
-$text-main: #2c3e50;
-$text-light: #7f8c8d;
-$border-light: #eceef1;
-
-
-ul {
-  list-style: none;
-}
-
-// layout geral
-.layout {
-  display: flex;
-  height: 100vh;
-  font-family: Arial, sans-serif;
-  color: $text-main;
-}
-
-// sidebar esquerda
-.sidebar {
-  width: 200px;
-  background: $sidebar-bg;
-  color: white;
-  display: flex;
-  flex-direction: column;
-
-  .logo {
-    padding: 1.5rem;
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-
-  nav ul li {
-    padding: 1rem 1.5rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: .75rem;
-
-    &:hover,
-    &.active {
-      background: darken($sidebar-bg, 5%);
-    }
-  }
-}
-
-// área principal
-.main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-// header
-.topbar {
-  height: 60px;
-  background: $topbar-bg;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 1.5rem;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 899999;
-
-  h1 {
-    font-size: 1.25rem;
-  }
-
-  .user {
-    display: flex;
-    align-items: center;
-    gap: .75rem;
-
-    img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: white;
-    }
-  }
-}
-
-// conteúdo principal
-.content {
-  flex: 1;
-  display: flex;
-  background: $content-bg;
-  padding: 0 1.5rem;
-  gap: 1.5rem;
-}
-
-// coluna de alertas
-.alerts {
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-top: 75px;
-
-  height: calc(100vh - 80px);
-  overflow-y: scroll;
-
-  &::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: $topbar-bg  ;
-    border-radius: 20px;
-  }
-
-  .alert-card {
-    background: $card-bg;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+@mixin card($width: 350px, $height: 80vh) {
+    width: $width;
+    height: $height;
+    border-radius: 15px;
     padding: 1rem;
+    border: 1px solid var(--topbar-bg);
+    text-align: center;
+    position: relative;
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-
-      small {
-        color: $text-light;
-        font-size: .85rem;
-      }
+    h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-main);
     }
+}
 
-    hr {
-      border: none;
-      border-top: 1px solid $border-light;
-      margin: .75rem 0;
-    }
 
-    .card-body {
-      li {
+.container {
+    header {
         display: flex;
+        justify-content: space-between;
         align-items: center;
+        padding: 20px;
+
+        .logo {
+            img {
+                width: 150px;
+                height: auto;
+            }
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .menu {
+            display: flex;
+            gap: 20px;
+
+            div {
+                background-color: var(--topbar-bg);
+                width: 40px;
+                height: 40px;
+                display: grid;
+                place-content: center;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+
+                &:hover {
+                    background-color: var(--sidebar-bg);
+                }
+
+
+            }
+
+            i {
+                font-size: 20px;
+                color: white;
+            }
+
+        }
+    }
+
+
+    main {
+        width: 100%;
+        height: calc(100vh - 150px);
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        align-items: center;
+        padding: 0 20px;
+
+        .card {
+            @include card();
+
+            &.cliente-card {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+
+                .clientes {
+                    height: 80%;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                    overflow-y: scroll;
+
+                    &::-webkit-scrollbar {
+                        display: none;
+                    }
+
+                    .cliente {
+                        display: flex;
+                        justify-content: space-between;
+                        background-color: rgba($color: #344156, $alpha: 0.3);
+                        color: #000;
+                        border-radius: 5px;
+                        padding: 8px 10px;
+                        align-items: center;
+
+                        .dados {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: flex-start;
+                            gap: .2rem;
+
+                            .telefone {
+                                font-size: 12px;
+                            }
+                        }
+
+                        .edit {
+                            width: 30px;
+                            height: 30px;
+                            display: grid;
+                            place-content: center;
+                            border-radius: 50%;
+                            cursor: pointer;
+                            transition: background-color 0.3s ease;
+                            background-color: var(--topbar-bg);
+
+                            i {
+                                font-size: 14px;
+                                color: white;
+                            }
+                        }
+                    }
+                }
+
+                .add-cliente {
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    padding: 8px 0;
+                    align-items: center;
+                    background-color: var(--topbar-bg);
+                    color: white;
+                    border-radius: 5px;
+                    cursor: pointer;
+
+
+                    transition: background-color 0.3s ease;
+
+                    &:hover {
+                        background-color: var(--sidebar-bg);
+                    }
+                }
+            }
+        }
+
+        .secound-card {
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+            height: 100%;
+            @include card();
+            padding: 0;
+            justify-content: space-between;
+            border: none;
+
+            .card {
+                @include card($width: 100%, $height: 350px);
+
+                &.emails {
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    gap: 1rem;
+
+                    .emails-list {
+                        height: 110px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: .5rem;
+                        overflow-y: scroll;
+
+                        &::-webkit-scrollbar {
+                            display: none;
+                        }
+
+                        .email {
+                            display: flex;
+                            width: 100%;
+                            justify-content: space-between;
+                            align-items: center;
+                            padding: 5px 10px;
+                            background-color: rgba($color: #344156, $alpha: 0.3);
+                            border-radius: 5px;
+                            cursor: pointer !important;
+
+                            position: relative;
+
+                            .delete {
+                                cursor: pointer;
+                            }
+
+                        }
+                    }
+
+                    .cadastrar-email {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1rem;
+
+                        .form-group {
+                            width: 100%;
+                            display: flex;
+                            gap: .5rem;
+
+                            .p-inputtext {
+                                width: 100% !important;
+                                padding: 5px 10px;
+                                font-size: 14px;
+                                border-radius: 5px;
+                                background-color: transparent;
+                                border: 1px solid var(--topbar-bg);
+                                color: var(--text-main);
+
+                                &::placeholder {
+                                    font-size: 12px;
+                                    color: var(--text-main);
+                                }
+                            }
+                        }
+
+                        button {
+                            padding: 5px 0;
+                            background-color: var(--topbar-bg);
+                            border: none;
+                            color: white;
+                            border-radius: 5px;
+                            cursor: pointer;
+                        }
+                    }
+                }
+
+                &.bloquear {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    height: 100%;
+
+
+                    .emailsBlocked {
+                        display: flex;
+                        flex-direction: column;
+                        gap: .5rem;
+                        height: 100px;
+                        overflow-y: scroll;
+
+                        &::-webkit-scrollbar {
+                            display: none;
+                        }
+
+                        .email {
+                            display: flex;
+                            width: 100%;
+                            justify-content: space-between;
+                            align-items: center;
+                            padding: 5px 10px;
+                            background-color: rgba($color: #344156, $alpha: 0.3);
+                            border-radius: 5px;
+                            z-index: 9999;
+
+                            .delete {
+                                cursor: pointer;
+                            }
+
+                        }
+
+
+                    }
+
+                    .form-group {
+                        width: 100%;
+                        display: flex;
+                        gap: .5rem;
+
+                        .p-inputtext {
+                            width: 100% !important;
+                            padding: 5px 10px;
+                            font-size: 14px;
+                            border-radius: 5px;
+                            background-color: transparent;
+                            border: 1px solid var(--topbar-bg);
+                            color: var(--text-main);
+
+                            &::placeholder {
+                                font-size: 12px;
+                                color: var(--text-main);
+                            }
+                        }
+
+                        button {
+                            padding: 5px 10px;
+                            background-color: var(--topbar-bg);
+                            border: none;
+                            color: white;
+                            border-radius: 5px;
+                            cursor: pointer;
+                        }
+                    }
+                }
+            }
+        }
+
+        .terceira-card {
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+            height: 100%;
+            @include card();
+            padding: 0;
+            justify-content: space-between;
+            border: none;
+
+
+
+            .tag {
+                height: 150px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                gap: 1rem;
+                @include card($width: 100%, $height: 100%);
+
+                .tags-list {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: .5rem;
+                    width: 100%;
+                    height: 150px;
+                    align-items: flex-start;
+                    overflow-y: scroll;
+
+                    &::-webkit-scrollbar {
+                        display: none;
+                    }
+
+                    .tagItem {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        text-align: start;
+                        gap: .5rem;
+                        color: var(--topbar-bg);
+                        font-size: 14px;
+                        background-color: rgba($color: #344156, $alpha: 0.3);
+
+                        border-radius: 5px;
+                        padding: 5px 10px;
+
+                        i {
+                            cursor: pointer;
+                        }
+                    }
+                }
+
+                .form-group {
+                    width: 100%;
+                    display: flex;
+                    gap: .5rem;
+
+                    .p-inputtext {
+                        width: 100% !important;
+                        padding: 5px 10px;
+                        font-size: 14px;
+                        border-radius: 5px;
+                        background-color: transparent;
+                        border: 1px solid var(--topbar-bg);
+                        color: var(--text-main);
+
+                        &::placeholder {
+                            font-size: 12px;
+                            color: var(--text-main);
+                        }
+                    }
+
+                    button {
+                        padding: 5px 10px;
+                        background-color: var(--topbar-bg);
+                        border: none;
+                        color: white;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    }
+                }
+            }
+
+            .card {
+                @include card($width: 100%, $height: 100%);
+            }
+        }
+    }
+
+    .edits-card {
+        display: flex;
+        flex-direction: column;
         gap: .5rem;
-        padding: .25rem 0;
-        color: $text-main;
+        @include card();
+        padding: 0;
+        justify-content: space-between;
+        border: none;
 
-        i {
-          font-size: 1rem;
-          color: $topbar-bg;
+
+
+        .card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+
+            .header {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 10px;
+            }
+
+            .content {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 10px;
+                height: 100%;
+
+                .conectar-whatsapp {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 1rem;
+                    cursor: pointer;
+                    background-color: var(--topbar-bg);
+                    padding: 10px;
+                    border-radius: 5px;
+                    color: white;
+                    font-size: 14px;
+                    font-weight: 600;
+                }
+            }
         }
-      }
     }
-  }
 }
 
-// widgets coluna direita
-.widgets {
-  width: 300px;
-  margin-top: 75px;
 
-  display: flex;
-  flex-direction: column;
-
-  .widget {
-    background: $card-bg;
-    border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    margin-bottom: 1.5rem;
-
-    h3 {
-      margin-bottom: .75rem;
-      font-size: 1.1rem;
-      border-bottom: 1px solid $border-light;
-      padding-bottom: .5rem;
-    }
-  }
-
-  .keywords {
-    display: flex;
-    flex-direction: column;
-    gap: .6rem;
-
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .5rem;
-      margin-bottom: 1rem;
-
-      .tag {
-        background: $border-light;
-        padding: .5rem;
-        border-radius: 4px;
+::ng-deep .p-dialog {
+    width: 30vw !important;
+    background-color: white !important;
+    color: black !important;
+    .dialog-content{
         display: flex;
-        align-items: center;
-        gap: .6rem;
-        position: relative;
-        font-size: .8rem;
-        color: $text-main;
-        font-weight: 700;
-
-        .remove {
-          font-size: .6rem;
-          cursor: pointer;
-        }
-
-      }
-    }
-
-    .line {
-      width: 100%;
-      height: 1px;
-      background-color: $text-light;
+        flex-direction: column;
+        gap: 1rem;
     }
 
     .form-group {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      justify-content: space-between;
-      gap: .5rem;
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
 
-      input {
-        width: 100%;
-        padding: .3rem .4rem;
-        height: 100%;
-        border: 2px solid $sidebar-bg;
-        border-radius: .3rem;
-        color: $sidebar-bg;
-        outline: none;
-        background-color: transparent;
+        .p-inputtext {
+            width: 100% !important;
+            padding: 5px 10px;
+            font-size: 14px;
+            border-radius: 5px;
+            background-color: transparent;
+            border: 1px solid var(--topbar-bg);
+            color: var(--text-main);
 
-        &::placeholder {
-          color: $sidebar-bg;
-
+            &::placeholder {
+                font-size: 12px;
+                color: var(--text-main);
+            }
         }
-      }
-
-      button {
-        height: 100%;
-        padding: 0 .5rem;
-        border-radius: .3rem;
-        background-color: $sidebar-bg;
-        color: white;
-        border: none;
-        cursor: pointer;
-      }
     }
-  }
-
-  .summary {
-    ul li {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .5rem 0;
-      color: $text-main;
-
-      i {
-        font-size: 1rem;
-        color: $topbar-bg;
-      }
-    }
-  }
-}
-
-
-::ng-deep .raw-message-panel {
-  margin-top: 20px;
-  font-size: 12px;
-  padding: 0 !important;
-  width: 100%;
-  background: $topbar-bg !important;
-}
-
-::ng-deep .p-panel-toggleable .p-panel-header {
-  padding: 0 .5rem !important;
-}
-
-::ng-deep .p-button {
-  color: white !important;
-
-  &:hover {
-    background-color: transparent !important;
-    font-size: 12px !important;
-  }
-}
-
-
-
-@media (max-width: 750px) {
-  .layout {
-    flex-direction: column;
-  }
-
-  .content {
-    flex-direction: column;
-    padding: 0.75rem;
-    
-    margin-top: 50px;
-  }
-  
-  .alerts {
-    height: auto;
-    margin: 75px 0;
-    margin-top: 1rem;
-    flex: 1;
-  }
-
-  .widgets {
-    display: none;
-
-  }
-
-  .keywords .form-group {
-    
-    flex-direction: column;
-
-    input,
-    button {
-      width: 100%;
-    }
-
-    button {
-      margin-top: 0.5rem;
-    }
-  }
-
-  ::ng-deep .raw-message-panel {
-    font-size: 11px;
-  }
 }

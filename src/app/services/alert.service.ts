@@ -26,4 +26,11 @@ export class AlertClientService {
   getAlerts(): Observable<Alert[]> {
     return this.http.get<Alert[]>(`${this.apiUrl}/alerts`);
   }
+
+  
+
+  addRemetente(remetente: string): Observable<string> {
+    return this.http.post<string>(`${this.apiUrl}/remetentes`, { remetente });
+  }
+  
 }

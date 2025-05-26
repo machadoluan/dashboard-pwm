@@ -1,82 +1,194 @@
-<div class="layout">
-  <!-- sidebar esquerda -->
-
-
-  <!-- área principal -->
-  <div class="main">
-    <!-- header -->
-    <header class="topbar">
-      <h1>Alertas</h1>
-
-    </header>
-
-    <!-- conteúdo -->
-    <div class="content">
-      <!-- coluna de alertas -->
-      <section class="alerts">
-        <div class="alert-card" *ngFor="let a of alerts">
-          <div class="card-header">
-            <span>⚠️ Alerta de No-break</span>
-            <small>{{ a.time }}</small>
-          </div>
-          <hr>
-          <ul class="card-body">
-            <li><strong>Aviso:</strong> {{ a.aviso }}</li>
-            <li><strong>Data/Hora:</strong> {{ a.dataHora }}</li>
-            <li><strong>IP:</strong> {{ a.ip }}</li>
-            <li><strong>Nome do Sistema:</strong> {{ a.nomeSistema }}</li>
-            <li><strong>Contato:</strong> {{ a.contato }}</li>
-            <li><strong>Localidade:</strong> {{ a.localidade }}</li>
-            <li><strong>Status:</strong> {{ a.status }}</li>
-
-
-          </ul>
-          <p-panel header="📨 Ver corpo do e-mail" toggleable="true" collapsed="true" collapsedIcon="pi pi-chevron-down"
-            expandedIcon="pi pi-chevron-up" styleClass="raw-message-panel">
-            <div style="white-space: pre-wrap;">
-              {{ a.mensagemOriginal || 'Corpo original indisponível.' }}
-            </div>
-          </p-panel>
-
-        </div>
-      </section>
-
-      <!-- sidebar direita com widgets -->
-      <aside class="widgets">
-        <!-- Keywords -->
-        <div class="widget keywords">
-          <h3>Tags</h3>
-          <div class="tags">
-            <span class="tag" *ngFor="let kw of keywords">
-              {{ kw }}
-              <i class="fa-solid fa-x remove" (click)="removeKeyword(kw)"></i>
-            </span>
-          </div>
-
-          <div class="line"></div>
-          <div class="form-group">
-            <input type="text" placeholder="Nova tag" [(ngModel)]="newKeyword">
-            <button (click)="addKeyword()">Adicionar</button>
-          </div>
-        </div>
-
-        <!-- Alerta resumo -->
-        <div class="widget summary">
-          <h3>Resumo de Alertas</h3>
-          <ul>
-            <li *ngFor="let item of stats | keyvalue">
-              <strong>{{ item.value }}</strong> {{ item.key }}
-            </li>
-            <li *ngIf="!(stats | keyvalue).length">
-              Sem alertas recebidos
-            </li>
-          </ul>
-        </div>
-
-      </aside>
+<div class="container">
+  <header>
+    <div class="logo">
+      <img src="https://pwmenergia.com.br/wp-content/uploads/2023/09/Logo-principal-header.png" alt="logo-pwm">
     </div>
-  </div>
+    <h1>Painel de Monitoramento</h1>
+    <div class="menu">
+      <div class="notification">
+        <i class="fa-solid fa-bell"></i>
+      </div>
+      <div class="user">
+        <i class="fa-solid fa-user"></i>
+      </div>
+    </div>
+  </header>
+
+
+  <main>
+    <div class="edits-card">
+      <div class="card">
+        <div class="header">
+          <h2>Conectar whatsapp</h2>
+        </div>
+
+        <div class="content">
+          <div class="qrcode">
+            <div class="conectar-whatsapp">
+              <i class="fa-solid fa-qrcode"></i>
+              <span>Conectar whatsapp</span>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+      <div class="card"></div>
+    </div>
+
+    <div class="terceira-card">
+      <div class="tag">
+        <h2>Add tag</h2>
+        <div class="tags-list">
+          <div class="tagItem" *ngFor="let tag of keywords">
+            <span>{{tag}}</span>
+            <i class="fa-solid fa-circle-xmark" (click)="removeKeyword(tag)"></i>
+          </div>
+        </div>
+        <div class="form-group">
+          <input type="text" [(ngModel)]="newKeyword" placeholder="Digite uma palavra para mostrar alertas" pInputText
+            (keydown.enter)="addKeyword()">
+          <button (click)="addKeyword()">Criar</button>
+        </div>
+      </div>
+
+      <div class="tag">
+        <h2>Block Tag</h2>
+        <div class="tags-list">
+          <div class="tagItem" *ngFor="let tag of blockTags">
+            <span>{{tag}}</span>
+            <i class="fa-solid fa-circle-xmark" (click)="removeTagBlocked(tag)"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" placeholder="Palavra para bloquear" [(ngModel)]="newTagBlocked" pInputText
+            (keydown.enter)="addTagBlocked()">
+          <button (click)="addTagBlocked()">Bloquear</button>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="secound-card">
+      <div class="emails card">
+        <h2>Emails</h2>
+        <div class="emails-list">
+          <div class="email" *ngFor="let email of emails">
+            <span class="email-name" (click)="showEmailDialog(email)">{{email.email}}</span>
+            <div class="delete">
+              <i class="fa-solid fa-circle-xmark" (click)="removeEmail(email.email)"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="cadastrar-email">
+          <div class="form-group">
+            <input type="text" placeholder="Email" pInputText [(ngModel)]="newEmail.email">
+          </div>
+          <div class="form-group">
+            <input type="text" placeholder="Senha" pInputText [(ngModel)]="newEmail.senha">
+            <input type="text" pInputText placeholder="Chat id" [(ngModel)]="newEmail.chatId">
+          </div>
+          <button (click)="addEmail()">Cadastrar</button>
+        </div>
+      </div>
+
+
+
+      <div class="bloquear card">
+        <h2>Bloquear e-mails</h2>
+
+        <div class="emailsBlocked">
+          <div class="email" *ngFor="let email of remetentes">
+            <span class="email-name">{{email}}</span>
+            <div class="delete">
+              <i class="fa-solid fa-circle-xmark" (click)="unblockEmail(email)"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" placeholder="Email" [(ngModel)]="emailBlocked" pInputText>
+          <button (click)="blockEmail()">Bloquear</button>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="card cliente-card">
+      <h2>Contratos</h2>
+      <div class="clientes">
+        <div class="cliente">
+
+          <div class="dados">
+            <div class="nome">GeoMais</div>
+            <div class="telefone">
+              (41) 99999-9999
+            </div>
+          </div>
+
+          <div class="edit">
+            <i class="fa-solid fa-pencil"></i>
+          </div>
+
+        </div>
+      </div>
+      <div class="add-cliente" (click)="displayCriarCliente = true">
+        Criar novo
+      </div>
+    </div>
+
+
+
+  </main>
 </div>
 
 
-<app-slidebar-mobile></app-slidebar-mobile>
+
+<!-- Dialog de detalhes -->
+<p-dialog header="Detalhes do E-mail" [(visible)]="displayEmailDialog" modal="true" [style]="{ width: '350px' }"
+  (onHide)="displayEmailDialog = false">
+  <div *ngIf="selectedEmail" class="dialog-content">
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="text" placeholder="Grupo" pInputText [(ngModel)]="selectedEmail.email">
+     
+    </div>
+    <div class="form-group">
+      <label for="groupName">Grupo</label>    
+      <input type="text" placeholder="" pInputText [(ngModel)]="selectedEmail.groupName">
+     
+    </div>
+  </div>
+</p-dialog> 
+
+<p-dialog header="Criar novo cliente" [(visible)]="displayCriarCliente" modal="true" [style]="{ width: '350px' }"
+  (onHide)="displayCriarCliente = false">
+  <div class="dialog-content">
+    <div class="form-group">
+      <label for="email">Nome do cliente</label>
+      <input type="text" placeholder="Grupo" pInputText >
+     
+    </div>
+    <div class="form-group">
+      <label for="groupName">Telefone</label>    
+      <input type="text" placeholder="" pInputText>
+    </div>
+
+    <div class="palavras-chave">
+      <div class="tags-list">
+        <div class="tagItem" *ngFor="let tag of keywords">
+          <span>{{tag}}</span>
+          <i class="fa-solid fa-circle-xmark" (click)="removeKeyword(tag)"></i>
+        </div>
+      </div>
+      <div class="form-group">
+        <input type="text" [(ngModel)]="newKeyword" placeholder="Digite uma palavra para mostrar alertas" pInputText
+          (keydown.enter)="addKeyword()">
+        <button (click)="addKeyword()">Criar</button>
+      </div>
+    </div>
+  </div>
+</p-dialog> 
