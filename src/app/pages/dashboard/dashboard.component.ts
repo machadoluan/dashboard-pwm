@@ -3,13 +3,15 @@ import { Component, OnInit } from '@angular/core';
 import { Alert, AlertClientService } from '../../services/alert.service';
 import { CommonModule } from '@angular/common';
 import { KeywordService } from '../../services/keyword.service';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { InputTextModule } from 'primeng/inputtext';
 import { ChipsModule } from 'primeng/chips';
 import { AddEmailDto, EmailService } from '../../services/email.service';
 import { TelegramService } from '../../services/telegram.service';
 import { DialogModule } from 'primeng/dialog';
+import { Client } from '../../../cliente.dto';
+import { ReactiveFormsModule } from '@angular/forms';
 
 interface EmailWithGroup {
   email: string;
@@ -19,7 +21,7 @@ interface EmailWithGroup {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule, InputTextModule, OverlayBadgeModule, ChipsModule, DialogModule],
+  imports: [CommonModule, FormsModule, InputTextModule, OverlayBadgeModule, ChipsModule, DialogModule, ReactiveFormsModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -36,6 +38,16 @@ export class DashboardComponent implements OnInit {
   displayEmailDialog = false;
   selectedEmail!: EmailWithGroup;
   displayCriarCliente: boolean = false;
+  editclient: boolean = false
+  clientForm: FormGroup;
+
+  client: Client[] = [
+    {
+      nome: 'Luan',
+      telefone: '11915574409',
+      tags: ['Ola', 'ola1']
+    }
+  ]
   
   newEmail: AddEmailDto = {
     email: '',
@@ -51,8 +63,14 @@ export class DashboardComponent implements OnInit {
     private alertClient: AlertClientService,
     private kwClient: KeywordService,
     private emailService: EmailService,
-    private telegramService: TelegramService
-  ) { }
+    private telegramService: TelegramService,
+    private fb: FormBuilder
+  ) { 
+    this.clientForm = this.fb.group({
+      nome: ['', Validators.required],
+      telefone: ['', [Validators.required, Validators.pattern(/^\d{10,11}$/)]]
+    });
+  }
 
   ngOnInit() {
     this.loadKeywords();
@@ -300,5 +318,10 @@ export class DashboardComponent implements OnInit {
   showEmailDialog(email: EmailWithGroup) {
     this.selectedEmail = email;
     this.displayEmailDialog = true;
+  }
+
+  editClient(cliente: Client) {
+  this.displayCriarCliente = true
+    console.log(cliente)
   }
 }
