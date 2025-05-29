@@ -1,17 +1,18 @@
-.container-notify{
+.container-notify {
     position: fixed;
+    top: 0;
     right: 0;
     width: 340px;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    height: 100vh;
     background-color: rgb(0, 0, 0);
     z-index: 9999;
-    // right: -350px;
-    transition: left 0.3s ease;
+
+    transform: translateX(100%); /* Começa fora da tela */
+    transition: transform 10s ease-in-out; /* Suavidade */
 
     &.open {
-        left: 0;
+        transform: translateX(0); /* Entra na tela */
     }
 }
