@@ -1,5 +1,5 @@
 // dashboard.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Alert, AlertClientService } from '../../services/alert.service';
 import { CommonModule } from '@angular/common';
 import { KeywordService } from '../../services/keyword.service';
@@ -12,6 +12,7 @@ import { TelegramService } from '../../services/telegram.service';
 import { DialogModule } from 'primeng/dialog';
 import { Client } from '../../../cliente.dto';
 import { ReactiveFormsModule } from '@angular/forms';
+import { NotifysComponent } from '../../components/notifys/notifys.component';
 
 interface EmailWithGroup {
   email: string;
@@ -21,11 +22,13 @@ interface EmailWithGroup {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule, InputTextModule, OverlayBadgeModule, ChipsModule, DialogModule, ReactiveFormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, InputTextModule, OverlayBadgeModule, ChipsModule, DialogModule, ReactiveFormsModule, NotifysComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+  @Output() notifyClicked = new EventEmitter<void>();
   alerts: (Alert & { _showRaw?: boolean })[] = [];
   keywords: string[] = [];
   remetentes: any[] = [];
@@ -38,23 +41,20 @@ export class DashboardComponent implements OnInit {
   displayEmailDialog = false;
   selectedEmail!: EmailWithGroup;
   displayCriarCliente: boolean = false;
-  editclient: boolean = false
+  editclient: boolean = false;
   clientForm: FormGroup;
-
-  client: Client[] = [
-    {
-      nome: 'Luan',
-      telefone: '11915574409',
-      tags: ['Ola', 'ola1']
-    }
-  ]
+  tags: string[] = [];
+  editingIndex = -1;
+  newTag = '';
+  showNotify = false;
+  
+  client: Client[] = []
   
   newEmail: AddEmailDto = {
     email: '',
     senha: '',
     chatId: ''
   };
-
   emailBlocked: string = '';
 
   private lastAlertCount = 0;
@@ -71,6 +71,9 @@ export class DashboardComponent implements OnInit {
       telefone: ['', [Validators.required, Validators.pattern(/^\d{10,11}$/)]]
     });
   }
+
+
+
 
   ngOnInit() {
     this.loadKeywords();
@@ -104,6 +107,14 @@ export class DashboardComponent implements OnInit {
         });
       }
     }
+  }
+
+  onNotifyClick() {
+    this.showNotify = true
+  }
+
+  onCloseNotify() {
+    this.showNotify = false;
   }
 
   requestNotificationPermission() {
@@ -320,8 +331,73 @@ export class DashboardComponent implements OnInit {
     this.displayEmailDialog = true;
   }
 
-  editClient(cliente: Client) {
-  this.displayCriarCliente = true
-    console.log(cliente)
+  editClient(cliente: Client, index: number) {
+    this.editingIndex = index;
+
+    // abre diálogo
+    this.displayCriarCliente = true;
+  
+    // preenche apenas os controles existentes
+    this.clientForm.patchValue({
+      nome: cliente.nome,
+      telefone: cliente.telefone
+    });
+  
+    // carrega as tags no array de edição
+    this.tags = [...cliente.tags];
+  
+    // limpa o campo de nova tag
+    this.newTag = '';
   }
+
+  openDialog() {
+    this.displayCriarCliente = true;
+  }
+
+  onDialogHide() {
+    this.clientForm.reset();
+    this.tags = [];
+    this.newTag = '';
+  }
+
+  addTag() {
+    const tag = this.newTag.trim();
+    if (tag && !this.tags.includes(tag)) {
+      this.tags.push(tag);
+    }
+    this.newTag = '';
+  }
+
+  // Remove tag pelo índice
+  removeTag(index: number) {
+    this.tags.splice(index, 1);
+  }
+  createClient() {
+    if (this.clientForm.invalid) return;
+
+    const payload: Client = {
+      ...this.clientForm.value,
+      tags: [...this.tags]
+    };
+  
+    if (this.editingIndex > -1) {
+      this.client[this.editingIndex] = payload;
+    } else {
+      this.client.push(payload);
+    }
+  
+
+    console.log('Clientes atuais:', this.client);
+
+    this.clientForm.reset();
+    this.tags = [];
+    this.editingIndex = -1;
+    this.displayCriarCliente = false;
+  }
+  
+
+  get dialogHeader(): string {
+    return this.editingIndex > -1 ? 'Dados do cliente' : 'Criar um novo cliente';
+  }
+  
 }

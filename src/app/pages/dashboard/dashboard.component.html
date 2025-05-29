@@ -5,7 +5,7 @@
     </div>
     <h1>Painel de Monitoramento</h1>
     <div class="menu">
-      <div class="notification">
+      <div class="notification" (click)="onNotifyClick()">
         <i class="fa-solid fa-bell"></i>
       </div>
       <div class="user">
@@ -119,8 +119,8 @@
 
     <div class="card cliente-card">
       <h2>Contratos</h2>
-      <div class="clientes" *ngFor="let cliente of client">
-        <div class="cliente">
+      <div class="clientes" >
+        <div class="cliente" *ngFor="let cliente of client; let i = index">
 
           <div class="dados">
             <div class="nome">{{cliente.nome}}</div>
@@ -129,8 +129,8 @@
             </div>
           </div>
 
-          <div class="edit">
-            <i class="fa-solid fa-pencil" (click)="editClient(cliente)"></i>
+          <div class="edit" (click)="editClient(cliente, i)">
+            <i class="fa-solid fa-pencil" ></i>
           </div>
 
         </div>
@@ -164,64 +164,58 @@
   </div>
 </p-dialog> 
 
-<p-dialog header="Criar novo cliente" [(visible)]="displayCriarCliente" modal="true" [style]="{ width: '350px' }"
-  (onHide)="displayCriarCliente = false" class="dialog-cliente">
-  @if(editclient) {
+<p-dialog [header]="dialogHeader"
+          [(visible)]="displayCriarCliente"
+          modal="true"
+          [style]="{ width: '350px' }"
+          (onHide)="onDialogHide()" class="dialog-cliente">
 
+  <form [formGroup]="clientForm" (ngSubmit)="createClient()">
     <div class="dialog-content">
+      <!-- Nome e Telefone -->
       <div class="form-group">
-        <label for="email">Nome do cliente</label>
-        <input type="text" placeholder="Digite o nome do cliente" [(ngModel)]="client.nome" pInputText >
-       
+        <label for="nome">Nome do cliente</label>
+        <input id="nome" type="text" pInputText formControlName="nome" placeholder="Digite o nome do cliente">
       </div>
       <div class="form-group">
-        <label for="groupName">Telefone</label>    
-        <input type="text" placeholder="Digite o numero de telefone" pInputText>
-        <span class="warning">*Atenção esse numero deve ser igual o numero que chega no e-mail*</span>
+        <label for="telefone">Telefone</label>
+        <input id="telefone" type="text" pInputText formControlName="telefone" placeholder="Digite o número de telefone">
+        <span class="warning">* Esse número deve ser igual ao que chega no e-mail *</span>
       </div>
-  
+
+      <!-- Seção de Tags -->
       <div class="palavras-chave">
-        <h2>Palavra-chave por cliente</h2>
+        <h2>Palavras-chave</h2>
+
+        <!-- Lista de tags atuais -->
         <div class="tags-list">
-          <div class="tagItem">
-            <span>teste</span>
-            <i class="fa-solid fa-circle-xmark" ></i>
+          <div class="tagItem" *ngFor="let t of tags; let i = index">
+            <span>{{ t }}</span>
+            <i class="fa-solid fa-circle-xmark" (click)="removeTag(i)"></i>
           </div>
         </div>
-        <div class="form-group">
-          <input type="text" [(ngModel)]="newKeyword" placeholder="Digite uma palavra para o cliente receber" pInputText
-            (keydown.enter)="addKeyword()">
-          <button (click)="addKeyword()">Criar</button>
+
+        <!-- Input para nova tag -->
+        <div class="createTag">
+          <input type="text"
+                 pInputText
+                 placeholder="Digite uma palavra-chave"
+                 [(ngModel)]="newTag"
+                 name="newTag"
+                 (keydown.enter)="addTag(); $event.preventDefault()"
+                 [ngModelOptions]="{standalone: true}">
+          <button type="button" (click)="addTag()">Add tag</button>
         </div>
       </div>
-    </div>
-  } 
 
-  <div class="dialog-content">
-    <div class="form-group">
-      <label for="email">Nome do cliente</label>
-      <input type="text" placeholder="Digite o nome do cliente" pInputText >
-     
-    </div>
-    <div class="form-group">
-      <label for="groupName">Telefone</label>    
-      <input type="text" placeholder="Digite o numero de telefone" pInputText>
-      <span class="warning">*Atenção esse numero deve ser igual o numero que chega no e-mail*</span>
-    </div>
-
-    <div class="palavras-chave">
-      <h2>Palavra-chave por cliente</h2>
-      <div class="tags-list">
-        <div class="tagItem">
-          <span>teste</span>
-          <i class="fa-solid fa-circle-xmark" ></i>
-        </div>
-      </div>
+      <!-- Botão Criar -->
       <div class="form-group">
-        <input type="text" [(ngModel)]="newKeyword" placeholder="Digite uma palavra para o cliente receber" pInputText
-          (keydown.enter)="addKeyword()">
-        <button (click)="addKeyword()">Criar</button>
+        <button type="submit"  label="Criar" [disabled]="clientForm.invalid">  {{ editingIndex > -1 ? 'Salvar' : 'Criar cliente' }}</button>
       </div>
+
     </div>
-  </div>
-</p-dialog> 
+  </form>
+</p-dialog>
+
+
+<app-notifys  [visible]="showNotify" (closeNotify)="onCloseNotify()"></app-notifys>

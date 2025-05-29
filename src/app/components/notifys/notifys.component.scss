@@ -1,0 +1,17 @@
+.container-notify{
+    position: fixed;
+    right: 0;
+    width: 340px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    background-color: rgb(0, 0, 0);
+    z-index: 9999;
+    // right: -350px;
+    transition: left 0.3s ease;
+
+    &.open {
+        left: 0;
+    }
+}

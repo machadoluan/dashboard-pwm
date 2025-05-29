@@ -459,6 +459,62 @@
         gap: 1rem;
     }
 
+    .p-inputtext {
+        width: 100% !important;
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        background-color: transparent;
+        border: 1px solid var(--topbar-bg);
+        color: var(--text-main);
+        flex: 1;
+
+        &::placeholder {
+            font-size: 12px;
+            color: var(--text-main);
+        }
+    }
+    .createTag{
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        justify-content: space-between;
+
+        .p-inputtext {
+            width: 100% !important;
+            padding: 5px 10px;
+            font-size: 14px;
+            border-radius: 5px;
+            background-color: transparent;
+            border: 1px solid var(--topbar-bg);
+            color: var(--text-main);
+            flex: 1;
+    
+            &::placeholder {
+                font-size: 12px;
+                color: var(--text-main);
+            }
+        }
+      
+        
+        button{
+            // width: 100% !important;
+            padding: 5px 20px !important;
+            background-color: var(--topbar-bg);
+            border: none;
+            color: white;
+            font-size: 14px;
+
+            border-radius: 5px;
+            cursor: pointer;
+
+            &:disabled{
+                background-color: rgba($color: #344156, $alpha: .5);
+            }
+
+        }
+    }
+
     .form-group {
         display: flex;
         flex-direction: column;
@@ -469,20 +525,20 @@
             color: red;
         }
 
-        .p-inputtext {
-            width: 100% !important;
-            padding: 5px 10px;
-            font-size: 14px;
+       
+        button {
+            padding: 10px 0;
+            background-color: var(--topbar-bg);
+            border: none;
+            color: white;
             border-radius: 5px;
-            background-color: transparent;
-            border: 1px solid var(--topbar-bg);
-            color: var(--text-main);
+            cursor: pointer;
 
-            &::placeholder {
-                font-size: 12px;
-                color: var(--text-main);
+            &:disabled{
+                background-color: rgba($color: #344156, $alpha: .5);
             }
         }
+       
     }
 
     .palavras-chave{
@@ -502,7 +558,7 @@
             gap: .5rem;
             align-items: flex-start;
             overflow-y: scroll;
-            background-color: rgba($color: #344156, $alpha: .5);
+            background-color: rgba($color: #344156, $alpha: .1);
             border-radius: 5px;
             padding: .5rem;
 
@@ -530,14 +586,6 @@
                     cursor: pointer;
                 }
             }
-        }
-        button {
-            padding: 5px 0;
-            background-color: var(--topbar-bg);
-            border: none;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
         }
     }
 }
