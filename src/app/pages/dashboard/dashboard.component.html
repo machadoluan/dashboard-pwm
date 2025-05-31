@@ -24,16 +24,26 @@
 
         <div class="content">
           <div class="qrcode">
-            <div class="conectar-whatsapp">
+            <div class="conectar-whatsapp" (click)="conectarWhatsapp()" >
               <i class="fa-solid fa-qrcode"></i>
               <span>Conectar whatsapp</span>
+            </div>
+            <div *ngIf="status.qrCode && !status.connected">
+              <img [src]="status.qrCode" alt="QR Code do WhatsApp">
+            </div>
+            <div *ngIf="status.connected">
+              ✅ Conectado - Última atualização: {{ status.lastUpdate | date:'HH:mm:ss' }}
             </div>
           </div>
         </div>
 
 
       </div>
-      <div class="card"></div>
+      <div class="card">
+        <div class="header">
+          <h2>Mapa</h2>
+        </div>
+      </div>
     </div>
 
     <div class="terceira-card">
@@ -53,7 +63,7 @@
       </div>
 
       <div class="tag">
-        <h2>Block Tag</h2>
+        <h2>Bloquear Tag</h2>
         <div class="tags-list">
           <div class="tagItem" *ngFor="let tag of blockTags">
             <span>{{tag}}</span>
@@ -119,21 +129,48 @@
 
     <div class="card cliente-card">
       <h2>Contratos</h2>
-      <div class="clientes" >
-        <div class="cliente" *ngFor="let cliente of client; let i = index">
+      <div class="filters">
+        <div class="filter">
+          <input type="text" placeholder="Pesquisar por nome, telefone ou endereço" pInputText [(ngModel)]="searchTerm">
+        </div>
+        <div class="cards-filters">
+          <div class="cards-filters">
+            <!-- Card “Sem sinal” -->
+            <div class="card-filter" [ngClass]="{ 'active': filterStatus === false }" (click)="toggleSemSinal()">
+              <span>Sem sinal</span>
+              <div class="red"></div>
+            </div>
+
+            <!-- Card “Com sinal” -->
+            <div class="card-filter" [ngClass]="{ 'active': filterStatus === true }" (click)="toggleComSinal()">
+              <span>Com sinal</span>
+              <div class="green"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="clientes">
+        <div class="cliente" *ngFor="let cliente of filteredClients; let i = index">
 
           <div class="dados">
             <div class="nome">{{cliente.nome}}</div>
             <div class="telefone">
-              {{cliente.telefone}}
+              {{formatarTelefone(cliente.telefone)}}
             </div>
           </div>
 
-          <div class="edit" (click)="editClient(cliente, i)">
-            <i class="fa-solid fa-pencil" ></i>
-          </div>
 
+
+          <div class="btns">
+            <div class="status">
+              <div [ngClass]="{'red': !cliente.sinal, 'green': cliente.sinal}"></div>
+            </div>
+            <div class="edit" (click)="editClient(cliente, i)">
+              <i class="fa-solid fa-pencil"></i>
+            </div>
+          </div>
         </div>
+        <span style="font-size: 14px;" *ngIf="filteredClients.length === 0">Nenhum cliente encontrado</span>
       </div>
       <div class="add-cliente" (click)="displayCriarCliente = true">
         Criar novo
@@ -154,33 +191,33 @@
     <div class="form-group">
       <label for="email">Email</label>
       <input type="text" placeholder="Grupo" pInputText [(ngModel)]="selectedEmail.email">
-     
+
     </div>
     <div class="form-group">
-      <label for="groupName">Grupo</label>    
+      <label for="groupName">Grupo</label>
       <input type="text" placeholder="" pInputText [(ngModel)]="selectedEmail.groupName">
-     
     </div>
   </div>
-</p-dialog> 
+</p-dialog>
 
-<p-dialog [header]="dialogHeader"
-          [(visible)]="displayCriarCliente"
-          modal="true"
-          [style]="{ width: '350px' }"
-          (onHide)="onDialogHide()" class="dialog-cliente">
+<p-dialog [header]="dialogHeader" [(visible)]="displayCriarCliente" modal="true" [style]="{ width: '350px' }"
+  (onHide)="onDialogHide()" class="dialog-cliente">
 
-  <form [formGroup]="clientForm" (ngSubmit)="createClient()">
+  <form [formGroup]="clientForm" (ngSubmit)="createContrato()">
     <div class="dialog-content">
-      <!-- Nome e Telefone -->
       <div class="form-group">
         <label for="nome">Nome do cliente</label>
         <input id="nome" type="text" pInputText formControlName="nome" placeholder="Digite o nome do cliente">
       </div>
       <div class="form-group">
         <label for="telefone">Telefone</label>
-        <input id="telefone" type="text" pInputText formControlName="telefone" placeholder="Digite o número de telefone">
+        <input id="telefone" type="text" pInputText formControlName="telefone" mask="(00) 00000-0000"
+          placeholder="Digite o número de telefone">
         <span class="warning">* Esse número deve ser igual ao que chega no e-mail *</span>
+      </div>
+      <div class="form-group">
+        <label for="endereco">Endereço</label>
+        <input id="endereco" type="text" pInputText formControlName="endereco" placeholder="Digite o endereço">
       </div>
 
       <!-- Seção de Tags -->
@@ -197,20 +234,17 @@
 
         <!-- Input para nova tag -->
         <div class="createTag">
-          <input type="text"
-                 pInputText
-                 placeholder="Digite uma palavra-chave"
-                 [(ngModel)]="newTag"
-                 name="newTag"
-                 (keydown.enter)="addTag(); $event.preventDefault()"
-                 [ngModelOptions]="{standalone: true}">
+          <input type="text" pInputText placeholder="Digite uma palavra-chave" [(ngModel)]="newTag" name="newTag"
+            (keydown.enter)="addTag(); $event.preventDefault()" [ngModelOptions]="{standalone: true}">
           <button type="button" (click)="addTag()">Add tag</button>
         </div>
       </div>
 
       <!-- Botão Criar -->
-      <div class="form-group">
-        <button type="submit"  label="Criar" [disabled]="clientForm.invalid">  {{ editingIndex > -1 ? 'Salvar' : 'Criar cliente' }}</button>
+      <div class="form-group buttons">
+        <button (click)="deleteContrato()" *ngIf="editingIndex > -1" class="delete">Deletar</button>
+        <button type="submit" label="Criar" [disabled]="clientForm.invalid"> {{ editingIndex > -1 ? 'Salvar' : 'Criar
+          cliente' }}</button>
       </div>
 
     </div>
@@ -218,4 +252,4 @@
 </p-dialog>
 
 
-<app-notifys  [visible]="showNotify" (closeNotify)="onCloseNotify()"></app-notifys>
+<app-notifys [visible]="showNotify" (closeNotify)="onCloseNotify()"></app-notifys>

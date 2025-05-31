@@ -13,7 +13,9 @@ import { DialogModule } from 'primeng/dialog';
 import { Client } from '../../../cliente.dto';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NotifysComponent } from '../../components/notifys/notifys.component';
-
+import { NgxMaskDirective } from 'ngx-mask';
+import { ContratosService } from '../../services/contratos.service';
+import { HttpClient } from '@angular/common/http';
 interface EmailWithGroup {
   email: string;
   chatId: string;
@@ -23,7 +25,7 @@ interface EmailWithGroup {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, InputTextModule, OverlayBadgeModule, ChipsModule, DialogModule, ReactiveFormsModule, NotifysComponent],
+  imports: [NgxMaskDirective, CommonModule, FormsModule, InputTextModule, OverlayBadgeModule, ChipsModule, DialogModule, ReactiveFormsModule, NotifysComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -41,15 +43,17 @@ export class DashboardComponent implements OnInit {
   displayEmailDialog = false;
   selectedEmail!: EmailWithGroup;
   displayCriarCliente: boolean = false;
-  editclient: boolean = false;
+  editclient: Client | null = null;
   clientForm: FormGroup;
   tags: string[] = [];
   editingIndex = -1;
   newTag = '';
   showNotify = false;
-  
+  filterStatus: boolean | null = null;
+  searchTerm: string = '';
+  status = { connected: false, qrCode: null, lastUpdate: null };
   client: Client[] = []
-  
+
   newEmail: AddEmailDto = {
     email: '',
     senha: '',
@@ -64,11 +68,14 @@ export class DashboardComponent implements OnInit {
     private kwClient: KeywordService,
     private emailService: EmailService,
     private telegramService: TelegramService,
-    private fb: FormBuilder
-  ) { 
+    private fb: FormBuilder,
+    private contratosService: ContratosService,
+    private http: HttpClient
+  ) {
     this.clientForm = this.fb.group({
       nome: ['', Validators.required],
-      telefone: ['', [Validators.required, Validators.pattern(/^\d{10,11}$/)]]
+      telefone: ['', [Validators.required, Validators.pattern(/^\d{10,11}$/)]],
+      endereco: ['', Validators.required]
     });
   }
 
@@ -78,12 +85,11 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.loadKeywords();
     this.loadEmail();
-
+    this.loadContratos();
     this.loadEmailBlocked();
-
+    this.getWhatsappStatus();
     this.kwClient.getKeywordsBlocked().subscribe({
       next: (data: any[]) => {
-        console.log(data);
         this.blockTags = data;
       },
       error: (error) => {
@@ -117,31 +123,11 @@ export class DashboardComponent implements OnInit {
     this.showNotify = false;
   }
 
-  requestNotificationPermission() {
-    if ('Notification' in window) {
-      Notification.requestPermission().then((permission) => {
-        console.log('Permissão de notificação:', permission);
-      });
-    }
-  }
 
   private previousAlertCount = 0;
 
   private loadAlerts() {
     this.alertClient.getAlerts().subscribe(data => {
-      if (data.length > this.previousAlertCount) {
-        const newAlert = data[0]; // ou pegue os novos
-
-        this.showDesktopNotification(
-          `${newAlert.aviso}`,
-          `${newAlert.status || 'Novo alerta recebido.'}`
-        );
-
-        // // TOCAR SOM
-        // this.notifyAudio.play().catch(err => {
-        //   console.warn('Erro ao tentar tocar som de notificação:', err);
-        // });
-      }
 
       this.previousAlertCount = data.length;
       if (this.alerts.length !== data.length) {
@@ -149,16 +135,6 @@ export class DashboardComponent implements OnInit {
       }
       this.calculateStats();
     });
-  }
-
-
-  showDesktopNotification(title: string, body: string) {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, {
-        body,
-        icon: 'assets/nobreak-icon.png', // opcional
-      });
-    }
   }
 
 
@@ -205,13 +181,6 @@ export class DashboardComponent implements OnInit {
     console.log('STATS POR KEYWORD:', this.stats);
   }
 
-
-  removeRemetente(remetente: string) {
-  }
-
-  addRemetente(remetente: string) {
-
-  }
 
   blockEmail() {
     const email = this.emailBlocked.trim();
@@ -332,20 +301,23 @@ export class DashboardComponent implements OnInit {
   }
 
   editClient(cliente: Client, index: number) {
-    this.editingIndex = index;
+    this.editclient = cliente;
+    console.log(this.editclient);
 
+    this.editingIndex = index;
     // abre diálogo
     this.displayCriarCliente = true;
-  
+
     // preenche apenas os controles existentes
     this.clientForm.patchValue({
       nome: cliente.nome,
-      telefone: cliente.telefone
+      telefone: cliente.telefone,
+      endereco: cliente.endereco
     });
-  
+
     // carrega as tags no array de edição
     this.tags = [...cliente.tags];
-  
+
     // limpa o campo de nova tag
     this.newTag = '';
   }
@@ -358,6 +330,8 @@ export class DashboardComponent implements OnInit {
     this.clientForm.reset();
     this.tags = [];
     this.newTag = '';
+    this.editclient = null;
+    console.log(this.editclient);
   }
 
   addTag() {
@@ -372,32 +346,134 @@ export class DashboardComponent implements OnInit {
   removeTag(index: number) {
     this.tags.splice(index, 1);
   }
+
   createClient() {
     if (this.clientForm.invalid) return;
 
-    const payload: Client = {
-      ...this.clientForm.value,
-      tags: [...this.tags]
-    };
-  
-    if (this.editingIndex > -1) {
-      this.client[this.editingIndex] = payload;
-    } else {
-      this.client.push(payload);
-    }
-  
+
+
 
     console.log('Clientes atuais:', this.client);
 
-    this.clientForm.reset();
-    this.tags = [];
-    this.editingIndex = -1;
-    this.displayCriarCliente = false;
+
   }
-  
+
 
   get dialogHeader(): string {
     return this.editingIndex > -1 ? 'Dados do cliente' : 'Criar um novo cliente';
   }
+
+  formatarTelefone(telefone: string): string {
+    if (!telefone) return '';
+
+    const apenasNumeros = telefone.replace(/\D/g, '');
+
+    if (apenasNumeros.length === 11) {
+      // Formato com 9 dígitos
+      return `(${apenasNumeros.slice(0, 2)}) ${apenasNumeros.slice(2, 7)}-${apenasNumeros.slice(7)}`;
+    } else if (apenasNumeros.length === 10) {
+      // Formato com 8 dígitos
+      return `(${apenasNumeros.slice(0, 2)}) ${apenasNumeros.slice(2, 6)}-${apenasNumeros.slice(6)}`;
+    }
+
+    return telefone; // fallback
+  }
+
+  loadContratos() {
+    this.contratosService.getContratos().subscribe((contratos) => {
+      this.client = contratos;
+    });
+  }
+
+  createContrato() {
+    const payload: Client = {
+      ...this.clientForm.value,
+      tags: [...this.tags],
+      sinal: false
+    };
+
+    if (this.editingIndex > -1) {
+      this.contratosService.updateContrato(this.editclient?.id!, payload).subscribe(() => {
+        this.loadContratos();
+        this.clientForm.reset();
+        this.tags = [];
+        this.editingIndex = -1;
+        this.displayCriarCliente = false;
+        this.editclient = null;
+      });
+    }
+    else {
+      this.contratosService.createContrato(payload).subscribe((contrato) => {
+        console.log(contrato);
+        this.loadContratos();
+        this.clientForm.reset();
+        this.tags = [];
+        this.editingIndex = -1;
+        this.displayCriarCliente = false;
+        this.editclient = null;
+      });
+    }
+  }
+
+
+
+  deleteContrato() {
+    console.log(this.editclient);
+
+    this.contratosService.deleteContrato(this.editclient?.id!).subscribe((contrato) => {
+      this.loadContratos();
+      this.clientForm.reset();
+      this.tags = [];
+      this.editingIndex = -1;
+      this.displayCriarCliente = false;
+      this.editclient = null;
+      this.editclient = null;
+    });
+  }
+
+  get filteredClients(): Client[] {
+    let lista = this.client;
+    if (this.filterStatus !== null) {
+      lista = lista.filter(c => c.sinal === this.filterStatus);
+    }
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      const termoEmMinusculas = this.searchTerm.trim().toLowerCase();
+      lista = lista.filter(c =>
+        // supondo que o campo seja `c.nome`
+        c.nome.toLowerCase().includes(termoEmMinusculas) ||
+        c.telefone.toLowerCase().includes(termoEmMinusculas) ||
+        c.endereco.toLowerCase().includes(termoEmMinusculas)
+      );
+    }
+    return lista;
+  }
+
+  toggleSemSinal() {
+    this.filterStatus = this.filterStatus === false ? null : false;
+  }
+
+  toggleComSinal() {
+    this.filterStatus = this.filterStatus === true ? null : true;
+  }
+
+  conectarWhatsapp() {
+    this.http.get<any>('http://localhost:3000/whatsapp/status').subscribe(data => {
+      this.status = data;
+      if (!data.connected) {
+        setTimeout(() => this.conectarWhatsapp(), 3000); // faz polling até conectar
+      }
+    });
+  }
+
+  getWhatsappStatus() {
+    this.http.get<any>('http://localhost:3000/whatsapp/status').subscribe(res => {
+      this.status = res;
   
+      if (!res.connected) {
+        // Polling até conectar
+        setTimeout(() => this.getWhatsappStatus(), 3000);
+      }
+    });
+  }
+
 }
