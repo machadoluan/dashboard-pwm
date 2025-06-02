@@ -24,26 +24,26 @@
 
         <div class="content">
           <div class="qrcode">
-            <div class="conectar-whatsapp" (click)="conectarWhatsapp()" >
+            <div class="conectar-whatsapp" (click)="conectarWhatsapp()" *ngIf="!status.isReady">
               <i class="fa-solid fa-qrcode"></i>
               <span>Conectar whatsapp</span>
             </div>
-            <div *ngIf="status.qrCode && !status.connected">
+            <div *ngIf="status.qrCode && !status.isReady">
               <img [src]="status.qrCode" alt="QR Code do WhatsApp">
             </div>
-            <div *ngIf="status.connected">
-              ✅ Conectado - Última atualização: {{ status.lastUpdate | date:'HH:mm:ss' }}
+            <div *ngIf="status.isReady">
+              ✅ Conectado
             </div>
           </div>
         </div>
 
 
       </div>
-      <div class="card">
+      <!-- <div class="card">
         <div class="header">
           <h2>Mapa</h2>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <div class="terceira-card">
@@ -215,10 +215,10 @@
           placeholder="Digite o número de telefone">
         <span class="warning">* Esse número deve ser igual ao que chega no e-mail *</span>
       </div>
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label for="endereco">Endereço</label>
         <input id="endereco" type="text" pInputText formControlName="endereco" placeholder="Digite o endereço">
-      </div>
+      </div> -->
 
       <!-- Seção de Tags -->
       <div class="palavras-chave">

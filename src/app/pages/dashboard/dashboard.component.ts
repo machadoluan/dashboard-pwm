@@ -16,6 +16,7 @@ import { NotifysComponent } from '../../components/notifys/notifys.component';
 import { NgxMaskDirective } from 'ngx-mask';
 import { ContratosService } from '../../services/contratos.service';
 import { HttpClient } from '@angular/common/http';
+import { ToastrService } from '../../services/toastr.service';
 interface EmailWithGroup {
   email: string;
   chatId: string;
@@ -51,7 +52,8 @@ export class DashboardComponent implements OnInit {
   showNotify = false;
   filterStatus: boolean | null = null;
   searchTerm: string = '';
-  status = { connected: false, qrCode: null, lastUpdate: null };
+  status: { qrCode?: string; isReady?: boolean } = {};
+  polling: any;
   client: Client[] = []
 
   newEmail: AddEmailDto = {
@@ -70,7 +72,8 @@ export class DashboardComponent implements OnInit {
     private telegramService: TelegramService,
     private fb: FormBuilder,
     private contratosService: ContratosService,
-    private http: HttpClient
+    private http: HttpClient,
+    private toastrService: ToastrService
   ) {
     this.clientForm = this.fb.group({
       nome: ['', Validators.required],
@@ -87,7 +90,7 @@ export class DashboardComponent implements OnInit {
     this.loadEmail();
     this.loadContratos();
     this.loadEmailBlocked();
-    this.getWhatsappStatus();
+    this.verificarStatus();
     this.kwClient.getKeywordsBlocked().subscribe({
       next: (data: any[]) => {
         this.blockTags = data;
@@ -149,7 +152,10 @@ export class DashboardComponent implements OnInit {
 
   addKeyword() {
     const word = this.newKeyword.trim();
-    if (!word) return;
+    if (!word) {
+      this.toastrService.showError('Preencha o campo de palavra');
+      return;
+    }
     this.kwClient.addKeyword(word)
       .subscribe(res => {
         if (res.added) {
@@ -184,7 +190,10 @@ export class DashboardComponent implements OnInit {
 
   blockEmail() {
     const email = this.emailBlocked.trim();
-    if (!email) return;
+    if (!email) {
+      this.toastrService.showError('Preencha o campo de email');
+      return;
+    }
     this.emailService.addEmailBlocked(email)
       .subscribe(res => {
         if (res.added) {
@@ -213,7 +222,10 @@ export class DashboardComponent implements OnInit {
 
   addTagBlocked() {
     const tag = this.newTagBlocked.trim();
-    if (!tag) return;
+    if (!tag) {
+      this.toastrService.showError('Preencha o campo de tag');
+      return;
+    }
     this.kwClient.addKeywordBlocked(tag).subscribe({
       next: (data: any) => {
         this.loadTagBlocked();
@@ -239,6 +251,10 @@ export class DashboardComponent implements OnInit {
   }
 
   addEmail() {
+    if (this.newEmail.email === '' || this.newEmail.senha === '' || this.newEmail.chatId === '') {
+      this.toastrService.showError('Preencha todos os campos');
+      return;
+    }
     this.emailService.addEmail(this.newEmail).subscribe({
       next: (data: any) => {
         this.loadEmail();
@@ -457,23 +473,26 @@ export class DashboardComponent implements OnInit {
   }
 
   conectarWhatsapp() {
-    this.http.get<any>('http://localhost:3000/whatsapp/status').subscribe(data => {
+    if (this.polling) {
+      clearInterval(this.polling);
+    }
+
+    this.status = {}; // limpa status anterior
+
+    this.polling = setInterval(() => {
+      this.http.get<any>('http://localhost:3000/whatsapp/qrcode').subscribe(data => {
+        this.status = data;
+
+        if (data.isReady) {
+          clearInterval(this.polling);
+        }
+      });
+    }, 3000);
+  }
+
+  verificarStatus() {
+    this.http.get<any>('http://localhost:3000/whatsapp/qrcode').subscribe(data => {
       this.status = data;
-      if (!data.connected) {
-        setTimeout(() => this.conectarWhatsapp(), 3000); // faz polling até conectar
-      }
     });
   }
-
-  getWhatsappStatus() {
-    this.http.get<any>('http://localhost:3000/whatsapp/status').subscribe(res => {
-      this.status = res;
-  
-      if (!res.connected) {
-        // Polling até conectar
-        setTimeout(() => this.getWhatsappStatus(), 3000);
-      }
-    });
-  }
-
 }
