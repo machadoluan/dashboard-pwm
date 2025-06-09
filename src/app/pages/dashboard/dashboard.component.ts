@@ -17,6 +17,7 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { ContratosService } from '../../services/contratos.service';
 import { HttpClient } from '@angular/common/http';
 import { ToastrService } from '../../services/toastr.service';
+import { EquipamentosService } from '../../services/equipamentos.service';
 interface EmailWithGroup {
   email: string;
   chatId: string;
@@ -44,6 +45,7 @@ export class DashboardComponent implements OnInit {
   displayEmailDialog = false;
   selectedEmail!: EmailWithGroup;
   displayCriarCliente: boolean = false;
+  displayCriarEquipamento: boolean = false;
   editclient: Client | null = null;
   clientForm: FormGroup;
   tags: string[] = [];
@@ -52,9 +54,14 @@ export class DashboardComponent implements OnInit {
   showNotify = false;
   filterStatus: boolean | null = null;
   searchTerm: string = '';
+  searchTermEquipamentos: string = '';
   status: { qrCode?: string; isReady?: boolean } = {};
   polling: any;
   client: Client[] = []
+  equipamentos: any[] = []
+  equipamentoForm: FormGroup;
+  editingIndexEquipamento = -1;
+  qrCode: string = '';
 
   newEmail: AddEmailDto = {
     email: '',
@@ -73,12 +80,19 @@ export class DashboardComponent implements OnInit {
     private fb: FormBuilder,
     private contratosService: ContratosService,
     private http: HttpClient,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private equipamentoService: EquipamentosService
   ) {
     this.clientForm = this.fb.group({
       nome: ['', Validators.required],
       telefone: ['', [Validators.required, Validators.pattern(/^\d{10,11}$/)]],
-      endereco: ['', Validators.required]
+      // endereco: ['', Validators.required]
+    });
+
+    this.equipamentoForm = this.fb.group({
+      nome: ['', Validators.required],
+      localidade: ['', Validators.required],
+      ip: ['', Validators.required]
     });
   }
 
@@ -86,11 +100,18 @@ export class DashboardComponent implements OnInit {
 
 
   ngOnInit() {
+
+    this.http.get<any>('http://localhost:3000/whatsapp/qrcode')
+      .subscribe(res => {
+        this.qrCode = res.qrCode;
+      });
+
     this.loadKeywords();
     this.loadEmail();
     this.loadContratos();
     this.loadEmailBlocked();
     this.verificarStatus();
+    this.listEquipamentos();
     this.kwClient.getKeywordsBlocked().subscribe({
       next: (data: any[]) => {
         this.blockTags = data;
@@ -449,9 +470,6 @@ export class DashboardComponent implements OnInit {
 
   get filteredClients(): Client[] {
     let lista = this.client;
-    if (this.filterStatus !== null) {
-      lista = lista.filter(c => c.sinal === this.filterStatus);
-    }
     if (this.searchTerm && this.searchTerm.trim() !== '') {
       const termoEmMinusculas = this.searchTerm.trim().toLowerCase();
       lista = lista.filter(c =>
@@ -464,35 +482,83 @@ export class DashboardComponent implements OnInit {
     return lista;
   }
 
-  toggleSemSinal() {
-    this.filterStatus = this.filterStatus === false ? null : false;
-  }
 
-  toggleComSinal() {
-    this.filterStatus = this.filterStatus === true ? null : true;
-  }
 
-  conectarWhatsapp() {
-    if (this.polling) {
-      clearInterval(this.polling);
-    }
+  // conectarWhatsapp() {
+  //   if (this.polling) {
+  //     clearInterval(this.polling);
+  //   }
 
-    this.status = {}; // limpa status anterior
+  //   this.status = {}; // limpa status anterior
 
-    this.polling = setInterval(() => {
-      this.http.get<any>('http://localhost:3000/whatsapp/qrcode').subscribe(data => {
-        this.status = data;
+  //   this.polling = setInterval(() => {
+  //     this.http.get('http://localhost:3000/whatsapp/qrcode', { responseType: 'text' })
+  //       .subscribe(data => {
+  //         this.qrCodeImage = data; // This will be the base64 string
+  //       });
 
-        if (data.isReady) {
-          clearInterval(this.polling);
-        }
-      });
-    }, 3000);
-  }
+  //   }, 3000);
+  // }
 
   verificarStatus() {
     this.http.get<any>('http://localhost:3000/whatsapp/qrcode').subscribe(data => {
       this.status = data;
     });
   }
+
+
+  listEquipamentos() {
+    this.equipamentoService.getList().subscribe({
+      next: (res) => {
+        this.equipamentos = res
+      }
+    })
+  }
+
+  get filteredEquipamentos(): any[] {
+    let lista = this.equipamentos;
+
+    if (this.filterStatus !== null) {
+      lista = lista.filter(c => {
+        const statusBoolean = c.status === 'online';
+        return statusBoolean === this.filterStatus;
+      });
+    }
+
+    if (this.searchTermEquipamentos && this.searchTermEquipamentos.trim() !== '') {
+      const termoEmMinusculas = this.searchTermEquipamentos.trim().toLowerCase();
+      lista = lista.filter(c =>
+        c.nome.toLowerCase().includes(termoEmMinusculas) ||
+        c.localidade.toLowerCase().includes(termoEmMinusculas) ||
+        c.ip.toLowerCase().includes(termoEmMinusculas)
+      );
+    }
+
+    return lista;
+  }
+
+
+  toggleSemSinal() {
+    this.filterStatus = this.filterStatus === false ? null : false;
+    console.log('Filtro sem sinal:', this.filterStatus);
+  }
+
+  toggleComSinal() {
+    this.filterStatus = this.filterStatus === true ? null : true;
+    console.log('Filtro com sinal:', this.filterStatus);
+  }
+
+  editEquipamento(equipamento: any, index: number) {
+    this.editEquipamento = equipamento;
+    this.editingIndexEquipamento = index;
+    this.displayCriarEquipamento = true;
+
+    this.equipamentoForm.patchValue({
+      nome: equipamento.nome,
+      localidade: equipamento.localidade,
+      ip: equipamento.ip
+    });
+  }
+
+
 }

@@ -106,10 +106,11 @@
                             flex-shrink: 0;
                             padding: 5px 10px;
                             border-radius: 5px;
-                            background-color: rgba($color: #344156, $alpha: 0.3);   
+                            background-color: rgba($color: #344156, $alpha: 0.3);
 
                             &.active {
                                 background-color: var(--topbar-bg);
+
                                 span {
                                     color: #fff;
                                 }
@@ -166,7 +167,7 @@
                         display: none;
                     }
 
-                    .cliente {
+                    .equipamento {
                         display: flex;
                         justify-content: space-between;
                         background-color: rgba($color: #344156, $alpha: 0.3);
@@ -181,11 +182,16 @@
                             align-items: flex-start;
                             gap: .2rem;
 
-                            .telefone {
-                                font-size: 12px;
+                            .nome {
+                                font-size: 14px;
+                                text-align: start;
                             }
+
+
                         }
-                        .btns{
+
+
+                        .btns {
                             display: flex;
                             align-items: center;
                             gap: 1rem;
@@ -199,16 +205,16 @@
                                     background-color: red;
                                     border-radius: 50%;
                                 }
-    
+
                                 .green {
                                     width: 10px;
                                     height: 10px;
                                     background-color: green;
                                     border-radius: 50%;
                                 }
-    
+
                             }
-    
+
                             .edit {
                                 width: 30px;
                                 height: 30px;
@@ -218,13 +224,57 @@
                                 cursor: pointer;
                                 transition: background-color 0.3s ease;
                                 background-color: var(--topbar-bg);
-    
+
                                 i {
                                     font-size: 14px;
                                     color: white;
                                 }
                             }
                         }
+                    }
+
+                    .cliente {
+                        display: flex;
+                        justify-content: space-between;
+                        background-color: rgba($color: #344156, $alpha: 0.3);
+                        color: #000;
+                        border-radius: 5px;
+                        padding: 8px 10px;
+                        align-items: center;
+
+
+
+                        .dados {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: flex-start;
+                            gap: .2rem;
+
+                            .telefone {
+                                font-size: 12px;
+                            }
+
+
+                        }
+
+                        .edit {
+                            width: 30px;
+                            height: 30px;
+                            display: grid;
+                            place-content: center;
+                            border-radius: 50%;
+                            cursor: pointer;
+                            transition: background-color 0.3s ease;
+                            background-color: var(--topbar-bg);
+
+                            i {
+                                font-size: 14px;
+                                color: white;
+                            }
+                        }
+
+
+
 
                     }
                 }
